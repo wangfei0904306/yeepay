@@ -94,6 +94,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>${project.artifactId}</finalName>  <!--这里一定要定义生成的JAR包文件名-->
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -116,26 +117,44 @@
 					<dockerHost>http://192.168.0.54:2735</dockerHost>
 					<images>
 						<image>
-							<name>iciyun/${project.artifactId}</name>
+							<name>iciyun/${project.artifactId}</name> <!--生成的image名-->
 							<alias>${project.artifactId}</alias>
 							<build>
-								<from>tomcat:8.5-alpine</from>
-								<tags><!-- define additional tags for the image -->
+								<from>java:8u40</from>
+								<maintainer>john.doe@example.com</maintainer>
+								<tags>
 									<tag>latest</tag>
 									<tag>${project.version}</tag>
 								</tags>
-								<assembly>
-									<descriptor>assembly.xml</descriptor>
-									<basedir>/</basedir>
-								</assembly>
 								<ports>
 									<port>8080</port>
 								</ports>
+								<volumes>
+									<volume>/usr/src/myapp</volume>
+								</volumes>
+								<buildOptions>
+									<shmsize>2147483648</shmsize>
+								</buildOptions>
+
+								<entryPoint>
+									<!-- exec form for ENTRYPOINT -->
+									<exec>
+										<arg>java</arg>
+										<arg>-jar</arg>  <!--启动参数-->
+										<arg>/usr/src/myapp/${project.artifactId}.jar</arg>
+									</exec>
+								</entryPoint>
+
+								<assembly>
+									<mode>dir</mode>
+									<basedir>/</basedir>
+									<descriptor>assembly.xml</descriptor>
+								</assembly>
 							</build>
 							<run>
-								<namingStrategy>alias</namingStrategy>
+								<namingStrategy>alias</namingStrategy>  <!--container全名规则-->
 								<ports>
-									<port>0.0.0.0:5555:8080</port>
+									<port>0.0.0.0:5555:8080</port> <!--端口映射-->
 								</ports>
 							</run>
 						</image>
